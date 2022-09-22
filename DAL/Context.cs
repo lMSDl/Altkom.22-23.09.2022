@@ -27,5 +27,17 @@ namespace DAL
         }
 
         //public DbSet<Order> Orders { get; set; }
+
+        public bool RandomFail { get; set; }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            if (RandomFail)
+            {
+                if (new Random().Next(1, 25) == 1)
+                    throw new Exception();
+            }
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 }
