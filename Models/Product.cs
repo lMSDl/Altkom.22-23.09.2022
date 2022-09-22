@@ -10,7 +10,7 @@ namespace Models
         //Token współbieżności
         //[ConcurrencyCheck]
         public string Name { get; set; } = string.Empty;
-        public float Price
+        public  float Price
         {
             get => price; set
             {
@@ -18,6 +18,6 @@ namespace Models
                 OnPropertyChanged(nameof(Price));
             }
         }
-        public IEnumerable<Order>? Orders { get; set; }
+        public virtual IEnumerable<Order>? Orders { get; set; }
     }
 }

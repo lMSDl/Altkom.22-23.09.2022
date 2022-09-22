@@ -2,64 +2,43 @@
 using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 var contextOptions = new DbContextOptionsBuilder<SqlServerContext>()
+    .LogTo(x => Debug.WriteLine(x))
+    //LazyLoading
+    .UseLazyLoadingProxies()
     .UseSqlServer(@"Server=.\SqlExpress;Database=EF6;Integrated Security=True");
 
+await Transactions(contextOptions);
 
-var context = new SqlServerContext(contextOptions.Options);
+Order order;
 
-context.Database.EnsureDeleted();
-context.Database.Migrate();
-
-
-var products = Enumerable.Range(100, 50).Select(x => new Product { Name = $"Product {x}", Price = 1.23f * x}).ToList();
-
-var orders = Enumerable.Range(0, 5).Select(x => new Order() { DateTime = DateTime.UtcNow.AddMinutes(-3.21 * x) }).ToList();
-
-context.RandomFail = true;
-
-using (var transaction = await context.Database.BeginTransactionAsync())
+using (var context = new SqlServerContext(contextOptions.Options))
 {
-    for (int i = 0; i < 5; i++)
-    {
-        string savepoint = i.ToString();
-        await transaction.CreateSavepointAsync(savepoint);
-        try
-        {
-            var subProducts = products.Skip(i * 10).Take(10).ToList();
+    order = context.Set<Order>().First();
+    //EagerLoading
+    //order = context.Set<Order>().Include(x => x.Products).First();
 
-            foreach (var product in subProducts)
-            {
-                context.Add(product);
-                await context.SaveChangesAsync();
-            }
-
-            orders[i].Products = subProducts;
-            context.Add(orders[i]);
-            await context.SaveChangesAsync();
-        }
-        catch
-        {
-            await transaction.RollbackToSavepointAsync(savepoint);
-        }
-    }
-
-    await transaction.CommitAsync();
+    //ExplicitLoading
+    //context.Entry(order).Collection(x => x.Products).Load();
+    DoSthWithOrder(order);
 }
 
+Console.WriteLine();
 
+//LazyLoding z wykorzystanie Proxy - wszystkie referencje w modelu muszą być virtual
+using (var context = new SqlServerContext(contextOptions.Options))
+{
+    var product = context.Set<Product>().First();
+    //EagerLoading
+    //order = context.Set<Order>().Include(x => x.Products).First();
 
-
-
-
-
-
-
-
-
-
-
+    //ExplicitLoading
+    //context.Entry(order).Collection(x => x.Products).Load();
+    DoSthWithProduct(product);
+}
+Console.WriteLine();
 
 
 static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerContext> contextOptions)
@@ -172,4 +151,57 @@ static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerC
             }
         }
     }
+}
+
+static async Task Transactions(DbContextOptionsBuilder<SqlServerContext> contextOptions)
+{
+    var context = new SqlServerContext(contextOptions.Options);
+
+    context.Database.EnsureDeleted();
+    context.Database.Migrate();
+
+
+    var products = Enumerable.Range(100, 50).Select(x => new Product { Name = $"Product {x}", Price = 1.23f * x }).ToList();
+
+    var orders = Enumerable.Range(0, 5).Select(x => new Order() { DateTime = DateTime.UtcNow.AddMinutes(-3.21 * x) }).ToList();
+
+    context.RandomFail = true;
+
+    using (var transaction = await context.Database.BeginTransactionAsync())
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            string savepoint = i.ToString();
+            await transaction.CreateSavepointAsync(savepoint);
+            try
+            {
+                var subProducts = products.Skip(i * 10).Take(10).ToList();
+
+                foreach (var product in subProducts)
+                {
+                    context.Add(product);
+                    await context.SaveChangesAsync();
+                }
+
+                orders[i].Products = subProducts;
+                context.Add(orders[i]);
+                await context.SaveChangesAsync();
+            }
+            catch
+            {
+                await transaction.RollbackToSavepointAsync(savepoint);
+            }
+        }
+
+        await transaction.CommitAsync();
+    }
+}
+
+static void DoSthWithOrder(Order order)
+{
+    order.Products.ToList();
+}
+static void DoSthWithProduct(Product product)
+{
+    product.Orders.ToList();
 }

@@ -1,19 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Models
 {
     public class Order : Entity
     {
-        public DateTime DateTime { get; set; }
-        public IList<Product> Products { get; set; } = new ObservableCollection<Product>();
+        private ILazyLoader _lazyLoader;
+        private IList<Product> products = new ObservableCollection<Product>();
 
+        public Order(ILazyLoader lazyLoader)
+        {
+            _lazyLoader = lazyLoader;
+        }
+
+        public Order()
+        {
+        }
+
+        public DateTime DateTime { get; set; }
+        public virtual IList<Product> Products
+        {
+            get => _lazyLoader?.Load(this, ref products) ?? products;
+            set => products = value;
+        }
         //Konfigurujemy token współbieżności za pomocą sygnatury czasowej
         //[Timestamp]
         public byte[] Timestamp { get; set; }
