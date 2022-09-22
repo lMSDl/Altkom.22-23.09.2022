@@ -7,6 +7,8 @@ namespace Models
     {
         private float price;
 
+        //Token współbieżności
+        //[ConcurrencyCheck]
         public string Name { get; set; } = string.Empty;
         public float Price
         {

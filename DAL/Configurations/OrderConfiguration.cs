@@ -13,7 +13,7 @@ namespace DAL.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-
+            builder.Property(x => x.Timestamp).IsRowVersion();
         }
     }
 }

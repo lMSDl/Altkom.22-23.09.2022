@@ -13,5 +13,9 @@ namespace Models
     {
         public DateTime DateTime { get; set; }
         public IList<Product> Products { get; set; } = new ObservableCollection<Product>();
+
+        //Konfigurujemy token współbieżności za pomocą sygnatury czasowej
+        //[Timestamp]
+        public byte[] Timestamp { get; set; }
     }
 }

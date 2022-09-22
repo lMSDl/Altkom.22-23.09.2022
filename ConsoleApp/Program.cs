@@ -63,3 +63,54 @@ context.SaveChanges();
 order.Products.First().Price = 3;
 Console.WriteLine(context.ChangeTracker.DebugView.LongView);
 context.SaveChanges();
+
+
+
+context.ChangeTracker.AutoDetectChangesEnabled = true;
+
+order.Products.First().Name = "Car";
+order.DateTime = DateTime.Now;
+
+var saved = false;
+while (!saved)
+{
+    try
+    {
+        context.SaveChanges();
+        saved = true;
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        foreach (var entry in ex.Entries)
+        {
+            //wartości stanu jaki chcemy wprowadzić do bazy danych
+            var currentValues = entry.CurrentValues;
+            //pobieramy wartości aktualnie znajdujące się w bazie danych
+            var databaseValues = entry.GetDatabaseValues();
+
+            if (entry.Entity is Order)
+            {
+                var dateTimeProperty = currentValues.Properties.SingleOrDefault(x => x.Name == nameof(Order.DateTime));
+                //var currentDateTimePropertyValue = currentValues[dateTimeProperty];
+                //var databaseDateTimePropertyValue = databaseValues[dateTimeProperty];
+
+                //currentValues[dateTimeProperty] = currentDateTimePropertyValue;
+
+                foreach(var property in currentValues.Properties)
+                {
+                    currentValues[property] = entry.OriginalValues[property];
+                }
+            }
+            else if (entry.Entity is Product)
+            {
+                var dateTimeProperty = currentValues.Properties.SingleOrDefault(x => x.Name == nameof(Product.Name));
+                var currentDateTimePropertyValue = currentValues[dateTimeProperty];
+                var databaseDateTimePropertyValue = databaseValues[dateTimeProperty];
+
+                currentValues[dateTimeProperty] = databaseDateTimePropertyValue.ToString() + currentDateTimePropertyValue.ToString();
+            }
+
+            entry.OriginalValues.SetValues(databaseValues);
+        }
+    }
+}
