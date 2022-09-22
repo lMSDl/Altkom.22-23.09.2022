@@ -16,6 +16,6 @@ namespace Models
                 OnPropertyChanged(nameof(Price));
             }
         }
-        //public IEnumerable<Order>? Orders { get; set; }
+        public IEnumerable<Order>? Orders { get; set; }
     }
 }

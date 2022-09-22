@@ -22,7 +22,7 @@ namespace DAL
             //modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrderConfiguration).Assembly);
 
-            modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+            //modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
         }
 

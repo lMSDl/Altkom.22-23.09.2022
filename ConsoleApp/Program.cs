@@ -9,7 +9,8 @@ var contextOptions = new DbContextOptionsBuilder<SqlServerContext>()
 var context = new SqlServerContext(contextOptions.Options);
 
 context.Database.EnsureDeleted();
-context.Database.EnsureCreated();
+//context.Database.EnsureCreated();
+context.Database.Migrate();
 
 var order = new Order();
 var product = new Product();
