@@ -1,4 +1,5 @@
-﻿using DAL.SqlServer;
+﻿using DAL;
+using DAL.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using System.Collections.ObjectModel;
@@ -40,6 +41,10 @@ using (var context = new SqlServerContext(contextOptions.Options))
 }
 Console.WriteLine();
 
+using (var context = new SqlServerContext(contextOptions.Options)) {
+    var orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
+    orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
+}
 
 static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerContext> contextOptions)
 {

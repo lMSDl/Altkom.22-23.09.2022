@@ -14,6 +14,12 @@ namespace DAL
         {
         }
 
+        public static Func<Context, DateTime, DateTime, IEnumerable<Order>> GetOrderFromTo { get; } =
+            EF.CompileQuery((Context context, DateTime from, DateTime to) =>
+                context.Set<Order>().Include(x => x.Products).Where(x => x.DateTime >= from).Where(x => x.DateTime <= to)
+            );
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
