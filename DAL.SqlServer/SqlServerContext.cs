@@ -14,12 +14,29 @@ namespace DAL.SqlServer
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if(!optionsBuilder.IsConfigured)
+            if (!optionsBuilder.IsConfigured)
                 optionsBuilder.UseSqlServer();
 
             //optionsBuilder.UseChangeTrackingProxies();
 
             base.OnConfiguring(optionsBuilder);
+
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+
+            modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
+                .Where(x => x.PropertyInfo?.PropertyType == typeof(DateTime)).ToList()
+                .ForEach(x =>
+                {
+                    x.SetColumnType("datetime");
+                    x.SetColumnOrder(1);
+                });
+            
+        }
+
     }
 }

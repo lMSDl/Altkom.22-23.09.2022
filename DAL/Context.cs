@@ -24,6 +24,28 @@ namespace DAL
 
             //modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
 
+
+            modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
+                .Where(x => x.Name == "Key").ToList()
+                .ForEach(x =>
+                {
+                    x.IsNullable = false;
+                    x.DeclaringEntityType.SetPrimaryKey(x);
+                });
+            modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
+                .Where(x => x.PropertyInfo?.PropertyType == typeof(string)).ToList()
+                .ForEach(x =>
+                {
+                    x.IsNullable = false;
+                });
+
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
+
+
         }
 
         //public DbSet<Order> Orders { get; set; }
