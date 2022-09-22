@@ -22,6 +22,8 @@ namespace DAL
             //modelBuilder.ApplyConfiguration(new ProductConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(OrderConfiguration).Assembly);
 
+            modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications);
+
         }
 
         //public DbSet<Order> Orders { get; set; }

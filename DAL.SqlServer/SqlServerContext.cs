@@ -16,6 +16,9 @@ namespace DAL.SqlServer
         {
             if(!optionsBuilder.IsConfigured)
                 optionsBuilder.UseSqlServer();
+
+            //optionsBuilder.UseChangeTrackingProxies();
+
             base.OnConfiguring(optionsBuilder);
         }
     }
