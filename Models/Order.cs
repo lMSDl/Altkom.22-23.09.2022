@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using NetTopologySuite.Geometries;
 using System.Collections.ObjectModel;
 
 namespace Models
@@ -30,5 +31,7 @@ namespace Models
         //Konfigurujemy token współbieżności za pomocą sygnatury czasowej
         //[Timestamp]
         public byte[] Timestamp { get; set; }
+
+        public Point? DeliveryPoint { get; set; }
     }
 }

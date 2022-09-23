@@ -3,6 +3,7 @@ using DAL.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Models;
+using NetTopologySuite.Geometries;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -10,7 +11,7 @@ var contextOptions = new DbContextOptionsBuilder<SqlServerContext>()
     .LogTo(x => Debug.WriteLine(x))
     //LazyLoading
     .UseLazyLoadingProxies()
-    .UseSqlServer(@"Server=.\SqlExpress;Database=EF6;Integrated Security=True");
+    .UseSqlServer(@"Server=.\SqlExpress;Database=EF6;Integrated Security=True", x => x.UseNetTopologySuite());
 
 await Transactions(contextOptions);
 
@@ -18,39 +19,24 @@ await Transactions(contextOptions);
 using (var context = new SqlServerContext(contextOptions.Options))
 {
     var orders = context.Set<Order>().ToList();
-    var order = orders.First();
 
-    order.IsDeleted = true;
+    for (int i = 0; i < orders.Count; i++)
+    {
+        orders[i].DeliveryPoint = new Point(52 + i, 21 - i / 10) { SRID = 4326 };
+    }
 
-    context.SaveChanges();
-}
-using (var context = new SqlServerContext(contextOptions.Options))
-{
-    var orders = context.Set<Order>().ToList();
-    orders = context.Set<Product>().Include(x => x.Orders).SelectMany(x => x.Orders).Distinct().ToList();
-
-    var order = orders.First();
-
-    context.Entry(order).Property<string>("Metadata").CurrentValue = "super zamówienie!";
-    context.SaveChanges();
-}
-using (var context = new SqlServerContext(contextOptions.Options))
-{
-    var products = context.Set<Product>().ToList();
-    products.First().Manufacturer = new Manufacturer() { Name = "Altkom"};
 
     context.SaveChanges();
 
-}
-using (var context = new SqlServerContext(contextOptions.Options))
-{
-    var products = context.Set<Product>().Where(x => EF.Property<int?>(x, "ManufacturerId").HasValue).ToList();
+    var point = new Point(52, 21) { SRID = 4326 };
+    var result = context.Set<Order>().Select(x => x.DeliveryPoint.Distance(point)).ToList();
+    var oders = context.Set<Order>().OrderBy(x => x.DeliveryPoint.Distance(point)).ToList();
 
-    context.Database.ExecuteSqlRaw("EXEC ChangePrice @p0", -1);
-    context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {-10}");
 
-    var result = context.Set<OrderSummary>().FromSqlInterpolated($"EXEC OrderSummary {1}").ToList();
-    result = context.Set<OrderSummary>().ToList();
+    var polygon = new Polygon(new LinearRing(new Coordinate[] { new Coordinate(52, 21), new Coordinate(51, 20), new Coordinate(52, 19), new Coordinate(53, 20),  new Coordinate(52, 21) })) { SRID = 4326 };
+
+    orders = context.Set<Order>().Where(x => polygon.Intersects(x.DeliveryPoint)).ToList();
+    orders = context.Set<Order>().Where(x => x.DeliveryPoint.IsWithinDistance(point, 150000)).ToList();
 }
 
 
@@ -249,5 +235,49 @@ static void Loading(DbContextOptionsBuilder<SqlServerContext> contextOptions)
     {
         var orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
         orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
+    }
+}
+
+static void Procedures(DbContextOptionsBuilder<SqlServerContext> contextOptions)
+{
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var products = context.Set<Product>().Where(x => EF.Property<int?>(x, "ManufacturerId").HasValue).ToList();
+
+        context.Database.ExecuteSqlRaw("EXEC ChangePrice @p0", -1);
+        context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {-10}");
+
+        var result = context.Set<OrderSummary>().FromSqlInterpolated($"EXEC OrderSummary {1}").ToList();
+        result = context.Set<OrderSummary>().ToList();
+    }
+}
+
+static void ModelBuilding(DbContextOptionsBuilder<SqlServerContext> contextOptions)
+{
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var orders = context.Set<Order>().ToList();
+        var order = orders.First();
+
+        order.IsDeleted = true;
+
+        context.SaveChanges();
+    }
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var orders = context.Set<Order>().ToList();
+        orders = context.Set<Product>().Include(x => x.Orders).SelectMany(x => x.Orders).Distinct().ToList();
+
+        var order = orders.First();
+
+        context.Entry(order).Property<string>("Metadata").CurrentValue = "super zamówienie!";
+        context.SaveChanges();
+    }
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var products = context.Set<Product>().ToList();
+        products.First().Manufacturer = new Manufacturer() { Name = "Altkom" };
+
+        context.SaveChanges();
     }
 }

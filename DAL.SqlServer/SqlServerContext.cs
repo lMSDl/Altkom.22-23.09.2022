@@ -16,7 +16,7 @@ namespace DAL.SqlServer
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
-                optionsBuilder.UseSqlServer();
+                optionsBuilder.UseSqlServer(x => x.UseNetTopologySuite());
 
             //optionsBuilder.UseChangeTrackingProxies();
 
