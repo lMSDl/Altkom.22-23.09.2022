@@ -30,7 +30,10 @@ namespace Models
         }
         //Konfigurujemy token współbieżności za pomocą sygnatury czasowej
         //[Timestamp]
-        public byte[] Timestamp { get; set; }
+        //private byte[] timestamp;
+        //private byte[] _timestamp;
+        private byte[] m_timestamp;
+        public byte[] Timestamp { get => m_timestamp; }
 
         public Point? DeliveryPoint { get; set; }
 

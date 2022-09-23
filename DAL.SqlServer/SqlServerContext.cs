@@ -56,6 +56,12 @@ namespace DAL.SqlServer
                 .HasMin(30)
                 .IsCyclic()
                 .IncrementsBy(33);
+
+
+
+
+            modelBuilder.Entity<ProductDetails>().ToTable("Product");
+            modelBuilder.Entity<Product>().HasOne(x => x.ProductDetails).WithOne().HasForeignKey<ProductDetails>(x => x.Id);
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

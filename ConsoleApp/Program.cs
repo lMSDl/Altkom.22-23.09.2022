@@ -10,7 +10,7 @@ using System.Diagnostics;
 var contextOptions = new DbContextOptionsBuilder<SqlServerContext>()
     .LogTo(x => Debug.WriteLine(x))
     //LazyLoading
-    .UseLazyLoadingProxies()
+    //.UseLazyLoadingProxies()
     .UseSqlServer(@"Server=.\SqlExpress;Database=EF6;Integrated Security=True", x => x.UseNetTopologySuite());
 
 await Transactions(contextOptions);
@@ -41,8 +41,14 @@ using (var context = new SqlServerContext(contextOptions.Options))
 
 }
 
+using (var context = new SqlServerContext(contextOptions.Options))
+{
+    var product = context.Set<Product>().ToList();
+    context.Entry(product.First()).Reference(x => x.ProductDetails).Load();
+}
 
-static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerContext> contextOptions)
+
+    static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerContext> contextOptions)
 {
     var context = new SqlServerContext(contextOptions.Options);
 
