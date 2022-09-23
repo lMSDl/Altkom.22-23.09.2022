@@ -62,6 +62,13 @@ namespace DAL.SqlServer
 
             modelBuilder.Entity<ProductDetails>().ToTable("Product");
             modelBuilder.Entity<Product>().HasOne(x => x.ProductDetails).WithOne().HasForeignKey<ProductDetails>(x => x.Id);
+
+            modelBuilder.Entity<Person>().ToTable("Person", x => x.IsTemporal(
+                xx =>
+                {
+                    xx.HasPeriodStart("From");
+                    xx.HasPeriodEnd("End");
+                }));
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

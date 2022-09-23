@@ -13,38 +13,31 @@ var contextOptions = new DbContextOptionsBuilder<SqlServerContext>()
     //.UseLazyLoadingProxies()
     .UseSqlServer(@"Server=.\SqlExpress;Database=EF6;Integrated Security=True", x => x.UseNetTopologySuite());
 
-await Transactions(contextOptions);
-
-
 using (var context = new SqlServerContext(contextOptions.Options))
 {
-    var orders = context.Set<Order>().ToList();
+    context.Database.EnsureDeleted();
+    context.Database.Migrate();
 
-    for (int i = 0; i < orders.Count; i++)
-    {
-        orders[i].DeliveryPoint = new Point(52 + i, 21 - i / 10) { SRID = 4326 };
-    }
+    var person = new Person() { Name = "Ewa", BirthDate = DateTime.Now.AddYears(-30) };
 
-
+    context.Add(person);
     context.SaveChanges();
 
-    var point = new Point(52, 21) { SRID = 4326 };
-    var result = context.Set<Order>().Select(x => x.DeliveryPoint.Distance(point)).ToList();
-    var oders = context.Set<Order>().OrderBy(x => x.DeliveryPoint.Distance(point)).ToList();
 
+    Thread.Sleep(5000);
 
-    var polygon = new Polygon(new LinearRing(new Coordinate[] { new Coordinate(52, 21), new Coordinate(51, 20), new Coordinate(52, 19), new Coordinate(53, 20),  new Coordinate(52, 21) })) { SRID = 4326 };
+    person.Name = "Ala";
+    context.SaveChanges();
 
-    orders = context.Set<Order>().Where(x => polygon.Intersects(x.DeliveryPoint)).ToList();
-    orders = context.Set<Order>().Where(x => x.DeliveryPoint.IsWithinDistance(point, 150000)).ToList();
-
+    context.Remove(person);
+    context.SaveChanges();
 
 }
 
 using (var context = new SqlServerContext(contextOptions.Options))
 {
-    var product = context.Set<Product>().ToList();
-    context.Entry(product.First()).Reference(x => x.ProductDetails).Load();
+    var people = context.Set<Person>().TemporalAsOf(DateTime.UtcNow.AddSeconds(-3)).ToList();
+    var people2 = context.Set<Person>().TemporalAll().Select(x => new { x, FROM = EF.Property<DateTime>(x, "From"), TO = EF.Property<DateTime>(x, "End") }).ToList();
 }
 
 
@@ -287,5 +280,42 @@ static void ModelBuilding(DbContextOptionsBuilder<SqlServerContext> contextOptio
         products.First().Manufacturer = new Manufacturer() { Name = "Altkom" };
 
         context.SaveChanges();
+    }
+}
+
+static async Task Orders(DbContextOptionsBuilder<SqlServerContext> contextOptions)
+{
+    await Transactions(contextOptions);
+
+
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var orders = context.Set<Order>().ToList();
+
+        for (int i = 0; i < orders.Count; i++)
+        {
+            orders[i].DeliveryPoint = new Point(52 + i, 21 - i / 10) { SRID = 4326 };
+        }
+
+
+        context.SaveChanges();
+
+        var point = new Point(52, 21) { SRID = 4326 };
+        var result = context.Set<Order>().Select(x => x.DeliveryPoint.Distance(point)).ToList();
+        var oders = context.Set<Order>().OrderBy(x => x.DeliveryPoint.Distance(point)).ToList();
+
+
+        var polygon = new Polygon(new LinearRing(new Coordinate[] { new Coordinate(52, 21), new Coordinate(51, 20), new Coordinate(52, 19), new Coordinate(53, 20), new Coordinate(52, 21) })) { SRID = 4326 };
+
+        orders = context.Set<Order>().Where(x => polygon.Intersects(x.DeliveryPoint)).ToList();
+        orders = context.Set<Order>().Where(x => x.DeliveryPoint.IsWithinDistance(point, 150000)).ToList();
+
+
+    }
+
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var product = context.Set<Product>().ToList();
+        context.Entry(product.First()).Reference(x => x.ProductDetails).Load();
     }
 }
