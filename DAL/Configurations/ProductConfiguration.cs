@@ -14,6 +14,7 @@ namespace DAL.Configurations
         public override void Configure(EntityTypeBuilder<Product> builder)
         {
             builder.Property(x => x.Name).IsConcurrencyToken();
+            builder.Ignore(x => x.Desc);
         }
     }
 }

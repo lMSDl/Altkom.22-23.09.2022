@@ -18,6 +18,10 @@ namespace Models
                 OnPropertyChanged(nameof(Price));
             }
         }
+
+        public string Description { get; }
+        public string Desc => $"{Name} {Price}zł";
+
         public virtual IEnumerable<Order>? Orders { get; set; }
     }
 }

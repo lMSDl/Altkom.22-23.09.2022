@@ -32,6 +32,7 @@ namespace DAL.SqlServer
             modelBuilder.Entity<Order>().Property(x => x.Created).HasDefaultValueSql("getdate()");
             modelBuilder.Entity<Order>().Property(x => x.Updated).HasDefaultValueSql("getdate()");
 
+            modelBuilder.Entity<Product>().Property(x => x.Description).HasComputedColumnSql("[Name] + ' ' + STR([Price]) + 'zł'", stored: true);
 
             modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
                 .Where(x => x.PropertyInfo?.PropertyType == typeof(DateTime)).ToList()
