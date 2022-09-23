@@ -37,6 +37,8 @@ using (var context = new SqlServerContext(contextOptions.Options))
 
     orders = context.Set<Order>().Where(x => polygon.Intersects(x.DeliveryPoint)).ToList();
     orders = context.Set<Order>().Where(x => x.DeliveryPoint.IsWithinDistance(point, 150000)).ToList();
+
+
 }
 
 
@@ -160,7 +162,7 @@ static async Task Transactions(DbContextOptionsBuilder<SqlServerContext> context
     context.Database.Migrate();
 
 
-    var products = Enumerable.Range(100, 50).Select(x => new Product { Name = $"Product {x}", Price = 1.23f * x }).ToList();
+    var products = Enumerable.Range(100, 50).Select(x => new Product { Name = $"Product {x}" }).ToList();
 
     var orders = Enumerable.Range(0, 5).Select(x => new Order() { DateTime = DateTime.UtcNow.AddMinutes(-3.21 * x) }).ToList();
 

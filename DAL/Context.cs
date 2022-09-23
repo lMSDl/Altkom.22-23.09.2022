@@ -45,6 +45,7 @@ namespace DAL
                     x.IsNullable = false;
                 });
 
+
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

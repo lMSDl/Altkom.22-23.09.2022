@@ -28,7 +28,8 @@ namespace DAL.SqlServer
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Product>().Property(x => x.Price).HasDefaultValue(0.5);
+            modelBuilder.Entity<Product>().Property(x => x.Price)//.HasDefaultValue(0.5);
+                                                                .HasDefaultValueSql("NEXT VALUE FOR sequences.ProductPrice");
             //modelBuilder.Entity<Order>().Property(x => x.Created).HasDefaultValueSql("getdate()");
             modelBuilder.Entity<Order>().Property<DateTime>("Created").HasDefaultValueSql("getdate()");
             modelBuilder.Entity<Order>().Property<string>("Metadata");
@@ -49,6 +50,12 @@ namespace DAL.SqlServer
                     x.SetColumnOrder(1);
                 });
 
+            modelBuilder.HasSequence<int>("ProductPrice", "sequences")
+                .StartsAt(100)
+                .HasMax(300)
+                .HasMin(30)
+                .IsCyclic()
+                .IncrementsBy(33);
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
