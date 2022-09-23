@@ -9,12 +9,10 @@ using System.Threading.Tasks;
 
 namespace DAL.Configurations
 {
-    internal class OrderConfiguration : EntityConfiguration<Order>
+    internal class EntityConfiguration<T> : IEntityTypeConfiguration<T> where T : Entity
     {
-        public override void Configure(EntityTypeBuilder<Order> builder)
+        public virtual void Configure(EntityTypeBuilder<T> builder)
         {
-            builder.Property(x => x.Timestamp).IsRowVersion();
-
             builder.HasQueryFilter(x => !x.IsDeleted);
         }
     }

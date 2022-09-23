@@ -1,6 +1,7 @@
 ﻿using DAL;
 using DAL.SqlServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Models;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -13,38 +14,23 @@ var contextOptions = new DbContextOptionsBuilder<SqlServerContext>()
 
 await Transactions(contextOptions);
 
-Order order;
 
 using (var context = new SqlServerContext(contextOptions.Options))
 {
-    order = context.Set<Order>().First();
-    //EagerLoading
-    //order = context.Set<Order>().Include(x => x.Products).First();
+    var orders = context.Set<Order>().ToList();
+    var order = orders.First();
 
-    //ExplicitLoading
-    //context.Entry(order).Collection(x => x.Products).Load();
-    DoSthWithOrder(order);
+    order.IsDeleted = true;
+
+    context.SaveChanges();
 }
-
-Console.WriteLine();
-
-//LazyLoding z wykorzystanie Proxy - wszystkie referencje w modelu muszą być virtual
 using (var context = new SqlServerContext(contextOptions.Options))
 {
-    var product = context.Set<Product>().First();
-    //EagerLoading
-    //order = context.Set<Order>().Include(x => x.Products).First();
-
-    //ExplicitLoading
-    //context.Entry(order).Collection(x => x.Products).Load();
-    DoSthWithProduct(product);
+    var orders = context.Set<Order>().ToList();
+    orders = context.Set<Product>().Include(x => x.Orders).SelectMany(x => x.Orders).Distinct().ToList();
 }
-Console.WriteLine();
 
-using (var context = new SqlServerContext(contextOptions.Options)) {
-    var orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
-    orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
-}
+
 
 static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerContext> contextOptions)
 {
@@ -210,4 +196,36 @@ static void DoSthWithOrder(Order order)
 static void DoSthWithProduct(Product product)
 {
     product.Orders.ToList();
+}
+
+static void Loading(DbContextOptionsBuilder<SqlServerContext> contextOptions)
+{
+    Order order;
+
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        order = context.Set<Order>().First();
+        //EagerLoading
+        //order = context.Set<Order>().Include(x => x.Products).First();
+
+        //ExplicitLoading
+        //context.Entry(order).Collection(x => x.Products).Load();
+        DoSthWithOrder(order);
+    }
+
+    Console.WriteLine();
+
+    //LazyLoding z wykorzystanie Proxy - wszystkie referencje w modelu muszą być virtual
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var product = context.Set<Product>().First();
+        DoSthWithProduct(product);
+    }
+    Console.WriteLine();
+
+    using (var context = new SqlServerContext(contextOptions.Options))
+    {
+        var orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
+        orders = Context.GetOrderFromTo(context, DateTime.Now.AddDays(-1), DateTime.Now).ToList();
+    }
 }
