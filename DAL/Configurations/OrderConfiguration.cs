@@ -14,8 +14,6 @@ namespace DAL.Configurations
         public override void Configure(EntityTypeBuilder<Order> builder)
         {
             builder.Property(x => x.Timestamp).IsRowVersion();
-
-            builder.HasQueryFilter(x => !x.IsDeleted);
         }
     }
 }

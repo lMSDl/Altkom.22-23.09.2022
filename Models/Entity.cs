@@ -8,6 +8,7 @@ namespace Models
 
         public bool IsDeleted { get; set; }
 
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string name)
