@@ -11,5 +11,7 @@ namespace Models
         public int Key { get; set; }
         public string Name { get; set; }    
         public DateTime BirthDate { get; set; }
+
+        public int? SomeValue { get; set; }
     }
 }
