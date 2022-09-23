@@ -27,7 +27,6 @@ namespace DAL.SqlServer
         {
             base.OnModelCreating(modelBuilder);
 
-
             modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
                 .Where(x => x.PropertyInfo?.PropertyType == typeof(DateTime)).ToList()
                 .ForEach(x =>
@@ -35,7 +34,11 @@ namespace DAL.SqlServer
                     x.SetColumnType("datetime");
                     x.SetColumnOrder(1);
                 });
-            
+        }
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            base.ConfigureConventions(configurationBuilder);
         }
 
     }

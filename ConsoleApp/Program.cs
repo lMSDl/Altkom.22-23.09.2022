@@ -195,6 +195,7 @@ static async Task Transactions(DbContextOptionsBuilder<SqlServerContext> context
             catch
             {
                 await transaction.RollbackToSavepointAsync(savepoint);
+                context.ChangeTracker.Clear();
             }
         }
 
