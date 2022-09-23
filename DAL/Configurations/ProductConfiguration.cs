@@ -15,6 +15,9 @@ namespace DAL.Configurations
         {
             builder.Property(x => x.Name).IsConcurrencyToken();
             builder.Ignore(x => x.Desc);
+
+            builder.Property(x => x.Name).HasConversion(x => Convert.ToBase64String(Encoding.UTF8.GetBytes(x)),
+                                                         x => Encoding.UTF8.GetString(Convert.FromBase64String(x)));
         }
     }
 }

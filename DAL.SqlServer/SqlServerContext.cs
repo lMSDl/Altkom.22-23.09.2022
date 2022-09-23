@@ -55,6 +55,8 @@ namespace DAL.SqlServer
         {
             base.ConfigureConventions(configurationBuilder);
 
+            //configurationBuilder.Properties<OrderTypes>().HaveConversion<string>();
+
         }
 
 

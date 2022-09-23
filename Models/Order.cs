@@ -33,5 +33,7 @@ namespace Models
         public byte[] Timestamp { get; set; }
 
         public Point? DeliveryPoint { get; set; }
+
+        public OrderTypes OrderType { get; set; }
     }
 }
