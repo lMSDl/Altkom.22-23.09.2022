@@ -29,7 +29,9 @@ namespace DAL.SqlServer
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Product>().Property(x => x.Price).HasDefaultValue(0.5);
-            modelBuilder.Entity<Order>().Property(x => x.Created).HasDefaultValueSql("getdate()");
+            //modelBuilder.Entity<Order>().Property(x => x.Created).HasDefaultValueSql("getdate()");
+            modelBuilder.Entity<Order>().Property<DateTime>("Created").HasDefaultValueSql("getdate()");
+            modelBuilder.Entity<Order>().Property<string>("Metadata");
             modelBuilder.Entity<Order>().Property(x => x.Updated).HasDefaultValueSql("getdate()");
 
             modelBuilder.Entity<Product>().Property(x => x.Description).HasComputedColumnSql("[Name] + ' ' + STR([Price]) + 'zł'", stored: true);
@@ -41,11 +43,13 @@ namespace DAL.SqlServer
                     x.SetColumnType("datetime");
                     x.SetColumnOrder(1);
                 });
+
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             base.ConfigureConventions(configurationBuilder);
+
         }
 
 

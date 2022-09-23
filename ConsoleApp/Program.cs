@@ -28,8 +28,25 @@ using (var context = new SqlServerContext(contextOptions.Options))
 {
     var orders = context.Set<Order>().ToList();
     orders = context.Set<Product>().Include(x => x.Orders).SelectMany(x => x.Orders).Distinct().ToList();
-}
 
+    var order = orders.First();
+
+    context.Entry(order).Property<string>("Metadata").CurrentValue = "super zamówienie!";
+    context.SaveChanges();
+}
+using (var context = new SqlServerContext(contextOptions.Options))
+{
+    var products = context.Set<Product>().ToList();
+    products.First().Manufacturer = new Manufacturer() { Name = "Altkom"};
+
+    context.SaveChanges();
+
+}
+using (var context = new SqlServerContext(contextOptions.Options))
+{
+    var products = context.Set<Product>().Where(x => EF.Property<int?>(x, "ManufacturerId").HasValue).ToList();
+
+}
 
 
 static void ChangeTrackingAndConcurrencyToken(DbContextOptionsBuilder<SqlServerContext> contextOptions)

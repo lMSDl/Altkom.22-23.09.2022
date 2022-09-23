@@ -18,7 +18,8 @@ namespace Models
         }
 
         public DateTime DateTime { get; set; }
-        public DateTime Created { get; }
+        //public DateTime Created { get; }
+
         public DateTime Updated { get; set; }
 
         public virtual IList<Product> Products

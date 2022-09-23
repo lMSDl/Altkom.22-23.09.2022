@@ -4,6 +4,7 @@ using DAL.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DAL.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerContext))]
-    partial class SqlServerContextModelSnapshot : ModelSnapshot
+    [Migration("20220923085625_AddManufacturer")]
+    partial class AddManufacturer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,7 +54,8 @@ namespace DAL.SqlServer.Migrations
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
+                        .HasColumnOrder(1)
                         .HasDefaultValueSql("getdate()");
 
                     b.Property<DateTime>("DateTime")
@@ -61,9 +64,6 @@ namespace DAL.SqlServer.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
-                    b.Property<string>("Metadata")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("Timestamp")
                         .IsConcurrencyToken()
@@ -138,19 +138,6 @@ namespace DAL.SqlServer.Migrations
                     b.HasIndex("ManufacturerId");
 
                     b.ToTable("Product");
-                });
-
-            modelBuilder.Entity("Models.ShadowId", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ShadowId");
                 });
 
             modelBuilder.Entity("OrderProduct", b =>

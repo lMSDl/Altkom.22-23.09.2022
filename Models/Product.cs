@@ -23,5 +23,6 @@ namespace Models
         public string Desc => $"{Name} {Price}zł";
 
         public virtual IEnumerable<Order>? Orders { get; set; }
+        public virtual Manufacturer? Manufacturer { get; set; }
     }
 }
