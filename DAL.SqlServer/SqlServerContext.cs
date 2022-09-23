@@ -39,6 +39,8 @@ namespace DAL.SqlServer
             // modelBuilder.Entity<OrderSummary>().ToTable(name: null);
             modelBuilder.Entity<OrderSummary>().ToView("View_OrderSummary");
 
+            modelBuilder.Entity<Order>().Property<int>("DeletedProducts");
+
             modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
                 .Where(x => x.PropertyInfo?.PropertyType == typeof(DateTime)).ToList()
                 .ForEach(x =>

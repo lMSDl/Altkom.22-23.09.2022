@@ -61,6 +61,22 @@ namespace DAL.SqlServer.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to CREATE OR ALTER TRIGGER PRODUCT_Delete On Product
+        ///	AFTER DELETE
+        ///	AS
+        ///	BEGIN
+        ///		SET NOCOUNT ON;
+        ///		UPDATE [Order] SET DeletedProducts += 1
+        ///		WHERE Id IN (SELECT OrdersId FROM [OrderProduct] WHERE ProductsId IN (SELECT DELETED.ID FROM DELETED))
+        ///	END.
+        /// </summary>
+        public static string DeletedProductsTrigger {
+            get {
+                return ResourceManager.GetString("DeletedProductsTrigger", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to CREATE OR ALTER PROCEDURE OrderSummary
         ///@id int
         ///AS
