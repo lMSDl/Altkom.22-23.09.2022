@@ -50,6 +50,7 @@ using (var context = new SqlServerContext(contextOptions.Options))
     context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {-10}");
 
     var result = context.Set<OrderSummary>().FromSqlInterpolated($"EXEC OrderSummary {1}").ToList();
+    result = context.Set<OrderSummary>().ToList();
 }
 
 
