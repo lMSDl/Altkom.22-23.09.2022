@@ -36,6 +36,8 @@ namespace DAL.SqlServer
 
             modelBuilder.Entity<Product>().Property(x => x.Description).HasComputedColumnSql("[Name] + ' ' + STR([Price]) + 'zł'", stored: true);
 
+            modelBuilder.Entity<OrderSummary>().ToTable(name: null);
+
             modelBuilder.Model.GetEntityTypes().SelectMany(x => x.GetProperties())
                 .Where(x => x.PropertyInfo?.PropertyType == typeof(DateTime)).ToList()
                 .ForEach(x =>

@@ -46,6 +46,10 @@ using (var context = new SqlServerContext(contextOptions.Options))
 {
     var products = context.Set<Product>().Where(x => EF.Property<int?>(x, "ManufacturerId").HasValue).ToList();
 
+    context.Database.ExecuteSqlRaw("EXEC ChangePrice @p0", -1);
+    context.Database.ExecuteSqlInterpolated($"EXEC ChangePrice {-10}");
+
+    var result = context.Set<OrderSummary>().FromSqlInterpolated($"EXEC OrderSummary {1}").ToList();
 }
 
 
